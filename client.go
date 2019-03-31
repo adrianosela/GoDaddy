@@ -47,3 +47,18 @@ func (c *Client) GetRecords(domain, recordType, name string) error {
 	}
 	return nil
 }
+
+// PutRecord replaces all records for a given domain and (optionally) type and name
+func (c *Client) PutRecord(domain, recordType, name, pointsto string, ttl int) error {
+	return records.Put(&records.Config{
+		APIKey:     c.apiKey,
+		APISecret:  c.apiSecret,
+		APIHost:    c.Host,
+		HTTPClient: c.HTTPClient,
+		Domain:     domain,
+		RecordType: recordType,
+		Name:       name,
+		IP:         pointsto,
+		TTL:        ttl,
+	})
+}

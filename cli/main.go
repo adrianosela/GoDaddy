@@ -35,28 +35,38 @@ func main() {
 		Name:  "record",
 		Usage: "dns record operations",
 		Subcommands: []cli.Command{
-			// {
-			// 	Name:   "create",
-			// 	Usage:  "creates a new DNS record",
-			// 	Action: createRecord,
-			// 	Flags: []cli.Flag{
-			// 		cli.StringFlag{
-			// 			Name:  "type",
-			// 			Usage: "record type",
-			// 			Value: "",
-			// 		},
-			// 		cli.StringFlag{
-			// 			Name:  "name",
-			// 			Usage: "Name of the record: <name>.yourdomain.com",
-			// 			Value: "",
-			// 		},
-			// 		cli.StringFlag{
-			// 			Name:  "points-to",
-			// 			Usage: "IP or Hostname for the record to point to",
-			// 			Value: "",
-			// 		},
-			// 	},
-			// },
+			{
+				Name:   "create",
+				Usage:  "creates a new DNS record",
+				Action: putRecord,
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:  "domain",
+						Usage: "owned domain for which to retrieve records",
+						Value: "",
+					},
+					cli.StringFlag{
+						Name:  "type",
+						Usage: "record type",
+						Value: "",
+					},
+					cli.StringFlag{
+						Name:  "name",
+						Usage: "Name of the record: <name>.yourdomain.com",
+						Value: "",
+					},
+					cli.StringFlag{
+						Name:  "points-to",
+						Usage: "IP or Hostname for the record to point to",
+						Value: "",
+					},
+					cli.IntFlag{
+						Name:  "ttl",
+						Usage: "Time-to-Live for record (how long dns resolvers should cache your record for)",
+						Value: 600,
+					},
+				},
+			},
 			{
 				Name:   "get",
 				Usage:  "get all records for a given domain",
@@ -92,8 +102,14 @@ func main() {
 	}
 }
 
-// GetRecords gets all records for a given domain
+// getRecords gets all records for a given domain
 func getRecords(c *cli.Context) error {
 	gd := godaddy.NewClient(os.Getenv("GD_API_KEY"), os.Getenv("GD_API_SECRET"), godaddy.HostProd)
 	return gd.GetRecords(c.String("domain"), c.String("type"), c.String("name"))
+}
+
+// putRecord creates a record for a domain
+func putRecord(c *cli.Context) error {
+	gd := godaddy.NewClient(os.Getenv("GD_API_KEY"), os.Getenv("GD_API_SECRET"), godaddy.HostProd)
+	return gd.PutRecord(c.String("domain"), c.String("type"), c.String("name"), c.String("points-to"), c.Int("ttl"))
 }
